@@ -1,4 +1,5 @@
 import type { ExtractedText, ImageFile, TranslatedText, TranslationStatus } from '~/types'
+import { useLocalStorage } from '@vueuse/core'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 
@@ -7,7 +8,7 @@ export const useTranslatorStore = defineStore('translator', () => {
   const extractedTexts = ref<ExtractedText[]>([])
   const translatedTexts = ref<TranslatedText[]>([])
   const status = ref<TranslationStatus>('idle')
-  const targetLanguage = ref<string>('en')
+  const targetLanguage = useLocalStorage('manga-translator-lang', 'en')
   const error = ref<string | null>(null)
   const hoveredTextId = ref<string | null>(null)
 
