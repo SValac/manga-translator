@@ -3,17 +3,21 @@ import { useElementSize } from '@vueuse/core'
 import { computed, ref } from 'vue'
 import { useTranslatorStore } from '~/stores/translator'
 
+const props = defineProps<{
+  zoom: number
+  panX: number
+  panY: number
+}>()
+
 const store = useTranslatorStore()
 const containerRef = ref<HTMLDivElement | null>(null)
 const { width: containerW, height: containerH } = useElementSize(containerRef)
 
-// Calculate the rendered image bounds within the object-contain container
 const imageBounds = computed(() => {
   if (!store.image || containerW.value === 0 || containerH.value === 0) {
     return { x: 0, y: 0, width: 0, height: 0 }
   }
 
-  // p-2 = 8px padding on each side
   const padding = 8
   const availW = containerW.value - padding * 2
   const availH = containerH.value - padding * 2
@@ -23,11 +27,18 @@ const imageBounds = computed(() => {
   const renderedW = imgW * scale
   const renderedH = imgH * scale
 
+  const baseX = padding + (availW - renderedW) / 2
+  const baseY = padding + (availH - renderedH) / 2
+
+  // Apply zoom & pan to match the image transform
+  const cx = containerW.value / 2
+  const cy = containerH.value / 2
+
   return {
-    x: padding + (availW - renderedW) / 2,
-    y: padding + (availH - renderedH) / 2,
-    width: renderedW,
-    height: renderedH,
+    x: cx + (baseX - cx) * props.zoom + props.panX,
+    y: cy + (baseY - cy) * props.zoom + props.panY,
+    width: renderedW * props.zoom,
+    height: renderedH * props.zoom,
   }
 })
 
