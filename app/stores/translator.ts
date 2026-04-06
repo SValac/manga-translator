@@ -9,6 +9,7 @@ export const useTranslatorStore = defineStore('translator', () => {
   const status = ref<TranslationStatus>('idle')
   const targetLanguage = ref<string>('en')
   const error = ref<string | null>(null)
+  const hoveredTextId = ref<string | null>(null)
 
   const hasImage = computed(() => image.value !== null)
   const hasExtractedTexts = computed(() => extractedTexts.value.length > 0)
@@ -87,8 +88,41 @@ export const useTranslatorStore = defineStore('translator', () => {
     }
   }
 
-  async function translateTexts(): Promise<void> {
-    throw new Error('Not implemented — Stage 2')
+  async function translateTexts(
+    translateFn: (text: string, source: string, target: string) => Promise<string>,
+  ): Promise<void> {
+    if (!hasExtractedTexts.value)
+      return
+
+    status.value = 'translating'
+    error.value = null
+    translatedTexts.value = []
+
+    try {
+      const results: TranslatedText[] = []
+
+      for (const extracted of extractedTexts.value) {
+        const sourceLang = extracted.language ?? 'ja'
+        const translated = await translateFn(extracted.content, sourceLang, targetLanguage.value)
+
+        results.push({
+          id: crypto.randomUUID(),
+          sourceTextId: extracted.id,
+          originalContent: extracted.content,
+          translatedContent: translated,
+          targetLanguage: targetLanguage.value,
+          translatedAt: new Date(),
+        })
+      }
+
+      translatedTexts.value = results
+      status.value = 'done'
+    }
+    catch (err) {
+      const message = err instanceof Error ? err.message : 'Translation failed'
+      error.value = message
+      status.value = 'error'
+    }
   }
 
   return {
@@ -98,6 +132,7 @@ export const useTranslatorStore = defineStore('translator', () => {
     status,
     targetLanguage,
     error,
+    hoveredTextId,
     hasImage,
     hasExtractedTexts,
     isProcessing,
