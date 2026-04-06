@@ -60,7 +60,31 @@ export const useTranslatorStore = defineStore('translator', () => {
   }
 
   async function extractTexts(): Promise<void> {
-    throw new Error('Not implemented — Stage 2')
+    if (!image.value)
+      return
+
+    status.value = 'extracting'
+    error.value = null
+    extractedTexts.value = []
+    translatedTexts.value = []
+
+    try {
+      const formData = new FormData()
+      formData.append('image', image.value.file)
+
+      const response = await $fetch<{ texts: ExtractedText[] }>('/api/ocr', {
+        method: 'POST',
+        body: formData,
+      })
+
+      extractedTexts.value = response.texts
+      status.value = 'done'
+    }
+    catch (err) {
+      const message = err instanceof Error ? err.message : 'OCR failed'
+      error.value = message
+      status.value = 'error'
+    }
   }
 
   async function translateTexts(): Promise<void> {
