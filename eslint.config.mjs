@@ -12,20 +12,23 @@ export default withNuxt(
         semi: false,
         quotes: 'single',
       },
-      ignores: ['.agents/**', '.claude/**'],
+      ignores: ['.agents/**', '.claude/**', 'docs/**'],
       imports: false,
     },
     {
       files: ['**/*.vue'],
       rules: {
-        'vue/max-attributes-per-line': ['error', {
-          singleline: {
-            max: 2,
+        'vue/max-attributes-per-line': [
+          'error',
+          {
+            singleline: {
+              max: 2,
+            },
+            multiline: {
+              max: 1,
+            },
           },
-          multiline: {
-            max: 1,
-          },
-        }],
+        ],
       },
     },
     {
