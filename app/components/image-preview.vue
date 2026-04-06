@@ -38,13 +38,15 @@ function onFileChange(event: Event) {
       </p>
     </div>
 
-    <!-- Image -->
-    <img
-      v-if="store.image"
-      :src="store.image.objectUrl"
-      :alt="store.image.name"
-      class="max-h-full max-w-full object-contain p-2"
-    >
+    <!-- Image + overlay -->
+    <template v-if="store.image">
+      <img
+        :src="store.image.objectUrl"
+        :alt="store.image.name"
+        class="max-h-full max-w-full object-contain p-2"
+      >
+      <ImageOverlay />
+    </template>
 
     <!-- Empty state -->
     <div v-else class="flex flex-col items-center gap-4 text-center">

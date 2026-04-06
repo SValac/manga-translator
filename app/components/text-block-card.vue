@@ -1,13 +1,23 @@
 <script setup lang="ts">
 import type { ExtractedText } from '~/types'
+import { useTranslatorStore } from '~/stores/translator'
 
-defineProps<{
+const props = defineProps<{
   text: ExtractedText
 }>()
+
+const store = useTranslatorStore()
 </script>
 
 <template>
-  <div class="rounded-lg border border-default bg-default p-3 text-sm">
+  <div
+    class="cursor-default rounded-lg border p-3 text-sm transition-colors"
+    :class="store.hoveredTextId === text.id
+      ? 'border-primary bg-primary/5'
+      : 'border-default bg-default hover:border-primary/50'"
+    @mouseenter="store.hoveredTextId = props.text.id"
+    @mouseleave="store.hoveredTextId = null"
+  >
     <p class="leading-relaxed text-default">
       {{ text.content }}
     </p>

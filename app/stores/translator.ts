@@ -9,6 +9,7 @@ export const useTranslatorStore = defineStore('translator', () => {
   const status = ref<TranslationStatus>('idle')
   const targetLanguage = ref<string>('en')
   const error = ref<string | null>(null)
+  const hoveredTextId = ref<string | null>(null)
 
   const hasImage = computed(() => image.value !== null)
   const hasExtractedTexts = computed(() => extractedTexts.value.length > 0)
@@ -98,6 +99,7 @@ export const useTranslatorStore = defineStore('translator', () => {
     status,
     targetLanguage,
     error,
+    hoveredTextId,
     hasImage,
     hasExtractedTexts,
     isProcessing,
