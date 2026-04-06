@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import type { SupportedLanguage } from '~/types'
+import { computed } from 'vue'
+import { useTranslator } from '~/composables/use-translator'
 import { useTranslatorStore } from '~/stores/translator'
 
 const store = useTranslatorStore()
 const toast = useToast()
+const { isSupported, chromeVersion, minVersion, translate } = useTranslator()
 
 const languages: SupportedLanguage[] = [
   { code: 'en', label: 'English' },
@@ -16,11 +19,27 @@ const languages: SupportedLanguage[] = [
   { code: 'de', label: 'German' },
 ]
 
+const translationMap = computed(() =>
+  Object.fromEntries(store.translatedTexts.map(t => [t.sourceTextId, t])),
+)
+
 async function handleExtract() {
   await store.extractTexts()
   if (store.status === 'error') {
     toast.add({
       title: 'Extraction failed',
+      description: store.error ?? 'An unexpected error occurred',
+      color: 'error',
+      icon: 'i-lucide-circle-x',
+    })
+  }
+}
+
+async function handleTranslate() {
+  await store.translateTexts(translate)
+  if (store.status === 'error') {
+    toast.add({
+      title: 'Translation failed',
       description: store.error ?? 'An unexpected error occurred',
       color: 'error',
       icon: 'i-lucide-circle-x',
@@ -43,6 +62,15 @@ async function handleExtract() {
       />
     </div>
 
+    <!-- Browser warning (client-only to avoid SSR mismatch) -->
+    <ClientOnly>
+      <BrowserWarning
+        v-if="!isSupported"
+        :min-version="minVersion"
+        :current-version="chromeVersion"
+      />
+    </ClientOnly>
+
     <USeparator />
 
     <!-- Text list -->
@@ -56,8 +84,8 @@ async function handleExtract() {
         />
       </div>
 
-      <!-- Skeleton while extracting -->
-      <template v-if="store.status === 'extracting'">
+      <!-- Skeleton while extracting or translating -->
+      <template v-if="store.status === 'extracting' || store.status === 'translating'">
         <div
           v-for="i in 4"
           :key="i"
@@ -86,17 +114,29 @@ async function handleExtract() {
         v-else
         :key="text.id"
         :text="text"
+        :translation="translationMap[text.id]"
       />
     </div>
 
-    <!-- Extract button -->
-    <UButton
-      icon="i-lucide-scan-text"
-      label="Extract text"
-      block
-      :disabled="!store.hasImage || store.isProcessing"
-      :loading="store.status === 'extracting'"
-      @click="handleExtract"
-    />
+    <!-- Action buttons -->
+    <div class="flex flex-col gap-2">
+      <UButton
+        icon="i-lucide-languages"
+        label="Translate"
+        block
+        :disabled="!store.hasExtractedTexts || store.isProcessing || !isSupported"
+        :loading="store.status === 'translating'"
+        @click="handleTranslate"
+      />
+      <UButton
+        icon="i-lucide-scan-text"
+        label="Extract text"
+        block
+        variant="soft"
+        :disabled="!store.hasImage || store.isProcessing"
+        :loading="store.status === 'extracting'"
+        @click="handleExtract"
+      />
+    </div>
   </div>
 </template>

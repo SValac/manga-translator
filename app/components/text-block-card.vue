@@ -1,12 +1,15 @@
 <script setup lang="ts">
-import type { ExtractedText } from '~/types'
+import type { ExtractedText, TranslatedText } from '~/types'
+import { ref } from 'vue'
 import { useTranslatorStore } from '~/stores/translator'
 
 const props = defineProps<{
   text: ExtractedText
+  translation?: TranslatedText
 }>()
 
 const store = useTranslatorStore()
+const showOriginal = ref(false)
 </script>
 
 <template>
@@ -18,9 +21,33 @@ const store = useTranslatorStore()
     @mouseenter="store.hoveredTextId = props.text.id"
     @mouseleave="store.hoveredTextId = null"
   >
-    <p class="leading-relaxed text-default">
-      {{ text.content }}
-    </p>
+    <!-- Translated content -->
+    <template v-if="translation && !showOriginal">
+      <p class="leading-relaxed text-default">
+        {{ translation.translatedContent }}
+      </p>
+      <button
+        class="mt-1 text-xs text-muted underline-offset-2 hover:underline"
+        @click.stop="showOriginal = true"
+      >
+        Show original
+      </button>
+    </template>
+
+    <!-- Original content -->
+    <template v-else>
+      <p class="leading-relaxed text-default">
+        {{ text.content }}
+      </p>
+      <button
+        v-if="translation"
+        class="mt-1 text-xs text-muted underline-offset-2 hover:underline"
+        @click.stop="showOriginal = false"
+      >
+        Show translation
+      </button>
+    </template>
+
     <div class="mt-2 flex items-center gap-2">
       <UBadge
         v-if="text.language"
