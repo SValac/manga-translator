@@ -1,21 +1,9 @@
 import antfu from '@antfu/eslint-config';
 
 // @ts-check
-import { defineFlatConfigs, createConfigForNuxt, resolveOptions } from '@nuxt/eslint-config/flat';
-import { fileURLToPath } from 'node:url';
+import withNuxt from './.nuxt/eslint.config.mjs';
 
-const r = (...args) => fileURLToPath(new URL(...args, import.meta.url))
-
-const options = resolveOptions({
-  features: {
-    standalone: false,
-    stylistic: true,
-  },
-});
-
-const nuxtConfigs = createConfigForNuxt(options);
-
-export default defineFlatConfigs(
+export default withNuxt(
   antfu(
     {
       type: 'app',
@@ -27,7 +15,6 @@ export default defineFlatConfigs(
         quotes: 'single',
       },
       ignores: ['.agents/**', '.claude/**'],
-      standalone: false,
     },
     {
       rules: {
@@ -63,5 +50,4 @@ export default defineFlatConfigs(
       },
     },
   ),
-  nuxtConfigs,
 );
