@@ -1,0 +1,43 @@
+services:
+  app:
+    build: .
+    container_name: manga-translator-dev
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    user: root
+    volumes:
+      # Montar código fuente para reflejar cambios en tiempo real
+      - .:/usr/src
+      # Proteger node_modules del contenedor
+      - /usr/src/node_modules
+    develop:
+      watch:
+        # Reconstruir cuando cambien variables de entorno
+        - path: ./.env
+          action: rebuild
+
+        # Reiniciar cuando cambien configuraciones
+        - path: ./nuxt.config.ts
+          target: /usr/src/nuxt.config.ts
+          action: restart
+
+        - path: ./tsconfig.json
+          target: /usr/src/tsconfig.json
+          action: restart
+
+        - path: ./eslint.config.mjs
+          target: /usr/src/eslint.config.mjs
+          action: restart
+
+        # Reconstruir cuando cambien dependencias
+        - path: ./package.json
+          target: /usr/src/package.json
+          action: rebuild
+
+        - path: ./bun.lock
+          target: /usr/src/bun.lock
+          action: rebuild
+
+    restart: unless-stopped

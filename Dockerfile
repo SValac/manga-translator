@@ -1,0 +1,28 @@
+# use the official Bun image
+# see all versions at https://hub.docker.com/r/oven/bun/tags
+FROM docker.io/oven/bun:1 AS base
+WORKDIR /usr/src
+
+# install dependencies into temp directory
+# this will cache them and speed up future builds
+FROM base AS install
+RUN mkdir -p /temp/dev
+COPY package.json bun.lock /temp/dev/
+RUN cd /temp/dev && HUSKY=0 bun install --frozen-lockfile
+
+# install with --production (exclude devDependencies)
+RUN mkdir -p /temp/prod
+COPY package.json bun.lock /temp/prod/
+RUN cd /temp/prod && bun install --frozen-lockfile --production --ignore-scripts
+
+# copy node_modules from temp directory
+# then copy all (non-ignored) project files into the image
+FROM base AS prerelease
+COPY --from=install /temp/dev/node_modules node_modules
+COPY . .
+
+# Change ownership to bun user before switching
+RUN chown -R bun:bun /usr/src
+USER bun
+EXPOSE 3000/tcp
+ENTRYPOINT [ "bun", "--bun", "run", "dev" ]

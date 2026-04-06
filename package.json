@@ -1,0 +1,39 @@
+{
+  "name": "manga-translator",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "typecheck": "nuxt typecheck",
+    "prepare": "husky",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "dependencies": {
+    "@antfu/eslint-config": "8.0.0",
+    "@nuxt/eslint": "1.15.2",
+    "@nuxt/ui": "4.6.1",
+    "@pinia/nuxt": "0.11.3",
+    "@vueuse/nuxt": "14.2.1",
+    "eslint": "10.2.0",
+    "nuxt": "4.4.2",
+    "vue": "3.5.32",
+    "vue-router": "5.0.4"
+  },
+  "devDependencies": {
+    "@iconify-json/lucide": "1.2.101",
+    "@iconify-json/simple-icons": "1.2.76",
+    "eslint-plugin-format": "2.0.1",
+    "husky": "9.1.7",
+    "lint-staged": "16.4.0",
+    "typescript": "6.0.2",
+    "vue-tsc": "3.2.6"
+  },
+  "lint-staged": {
+    "*": "bun lint"
+  }
+}
