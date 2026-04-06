@@ -98,6 +98,14 @@ useEventListener(dropZoneRef, 'wheel', onWheel, { passive: false })
       </p>
     </div>
 
+    <!-- Image name (mobile only) -->
+    <div
+      v-if="store.image"
+      class="absolute left-4 right-4 top-3 z-10 mx-auto max-w-xs truncate rounded-full border border-default bg-default/80 px-3 py-1 text-center text-xs text-muted backdrop-blur-sm md:hidden"
+    >
+      {{ store.image.name }}
+    </div>
+
     <!-- Image + overlay -->
     <template v-if="store.image">
       <img
@@ -143,7 +151,7 @@ useEventListener(dropZoneRef, 'wheel', onWheel, { passive: false })
     <!-- Zoom controls -->
     <div
       v-if="store.image"
-      class="absolute bottom-3 right-3 flex items-center gap-1 rounded-lg border border-default bg-default/90 p-1 backdrop-blur-sm"
+      class="absolute bottom-3 left-1/2 flex -translate-x-1/2 items-center gap-1 rounded-lg border border-default bg-default/90 p-1 backdrop-blur-sm md:left-auto md:right-3 md:translate-x-0"
     >
       <UButton
         size="xs"

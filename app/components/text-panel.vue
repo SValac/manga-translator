@@ -50,16 +50,29 @@ async function handleTranslate() {
 
 <template>
   <div class="flex h-full flex-col gap-4 p-4">
-    <!-- Language selector -->
+    <!-- Language selector + extract button -->
     <div class="flex flex-col gap-1">
       <label class="text-xs font-medium uppercase tracking-wide text-muted">Target language</label>
-      <USelect
-        :model-value="store.targetLanguage"
-        :items="languages"
-        value-key="code"
-        label-key="label"
-        @update:model-value="store.setTargetLanguage"
-      />
+      <div class="flex gap-2">
+        <USelect
+          class="flex-1"
+          :model-value="store.targetLanguage"
+          :items="languages"
+          value-key="code"
+          label-key="label"
+          @update:model-value="store.setTargetLanguage"
+        />
+        <UTooltip text="Extract text">
+          <UButton
+            icon="i-lucide-scan-text"
+            label="Extract"
+            :disabled="!store.hasImage || store.isProcessing"
+            :loading="store.status === 'extracting'"
+            class="shrink-0"
+            @click="handleExtract"
+          />
+        </UTooltip>
+      </div>
     </div>
 
     <!-- Browser warning (client-only to avoid SSR mismatch) -->
@@ -118,25 +131,14 @@ async function handleTranslate() {
       />
     </div>
 
-    <!-- Action buttons -->
-    <div class="flex flex-col gap-2">
-      <UButton
-        icon="i-lucide-languages"
-        label="Translate"
-        block
-        :disabled="!store.hasExtractedTexts || store.isProcessing || !isSupported"
-        :loading="store.status === 'translating'"
-        @click="handleTranslate"
-      />
-      <UButton
-        icon="i-lucide-scan-text"
-        label="Extract text"
-        block
-        variant="soft"
-        :disabled="!store.hasImage || store.isProcessing"
-        :loading="store.status === 'extracting'"
-        @click="handleExtract"
-      />
-    </div>
+    <!-- Translate button -->
+    <UButton
+      icon="i-lucide-languages"
+      label="Translate"
+      block
+      :disabled="!store.hasExtractedTexts || store.isProcessing || !isSupported"
+      :loading="store.status === 'translating'"
+      @click="handleTranslate"
+    />
   </div>
 </template>
