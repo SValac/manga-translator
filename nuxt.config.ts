@@ -1,25 +1,18 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  compatibilityDate: '2025-07-15',
+  modules: ['@nuxt/ui', '@pinia/nuxt', '@vueuse/nuxt', '@nuxt/eslint'],
   devtools: { enabled: true },
-  modules: [
-    '@nuxt/ui',
-    '@pinia/nuxt',
-    '@vueuse/nuxt',
-    '@nuxt/eslint',
-  ],
   css: ['~/assets/css/main.css'],
+  compatibilityDate: '2025-07-15',
+  vite: {
+    optimizeDeps: {
+      include: ['@vue/devtools-core', '@vue/devtools-kit'],
+    },
+  },
   eslint: {
     config: {
       stylistic: true,
+      standalone: false,
     },
   },
-  vite: {
-    optimizeDeps: {
-      include: [
-        '@vue/devtools-core',
-        '@vue/devtools-kit',
-      ],
-    },
-  },
-});
+})

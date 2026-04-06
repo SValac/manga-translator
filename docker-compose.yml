@@ -3,7 +3,7 @@ services:
     build: .
     container_name: manga-translator-dev
     ports:
-      - "3000:3000"
+      - '3000:3000'
     env_file:
       - .env
     user: root

@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import { useTranslatorStore } from '~/stores/translator';
-
-const store = useTranslatorStore();
 </script>
 
 <template>

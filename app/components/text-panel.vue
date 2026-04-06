@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { useTranslatorStore } from '~/stores/translator';
-import type { SupportedLanguage } from '~/types';
+import type { SupportedLanguage } from '~/types'
+import { useTranslatorStore } from '~/stores/translator'
 
-const store = useTranslatorStore();
+const store = useTranslatorStore()
 
 const languages: SupportedLanguage[] = [
   { code: 'en', label: 'English' },
@@ -13,7 +13,7 @@ const languages: SupportedLanguage[] = [
   { code: 'zh', label: 'Chinese' },
   { code: 'fr', label: 'French' },
   { code: 'de', label: 'German' },
-];
+]
 </script>
 
 <template>
@@ -34,7 +34,11 @@ const languages: SupportedLanguage[] = [
     <div class="flex flex-1 flex-col gap-2 overflow-y-auto">
       <div class="flex items-center justify-between">
         <span class="text-sm font-medium text-default">Extracted texts</span>
-        <UBadge v-if="store.hasExtractedTexts" :label="String(store.extractedTexts.length)" variant="soft" />
+        <UBadge
+          v-if="store.hasExtractedTexts"
+          :label="String(store.extractedTexts.length)"
+          variant="soft"
+        />
       </div>
 
       <div v-if="!store.hasExtractedTexts" class="flex flex-1 flex-col items-center justify-center gap-2 text-muted">
@@ -44,7 +48,12 @@ const languages: SupportedLanguage[] = [
         </p>
       </div>
 
-      <UCard v-for="text in store.extractedTexts" v-else :key="text.id" class="text-sm">
+      <UCard
+        v-for="text in store.extractedTexts"
+        v-else
+        :key="text.id"
+        class="text-sm"
+      >
         <p class="text-default">
           {{ text.content }}
         </p>
