@@ -30,7 +30,8 @@ type LanguageDetectorStatic = {
   create: () => Promise<LanguageDetector>
 }
 
-declare type Window = {
+// eslint-disable-next-line ts/consistent-type-definitions
+declare interface Window {
   Translator?: TranslatorStatic
   LanguageDetector?: LanguageDetectorStatic
   translation?: {

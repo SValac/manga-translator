@@ -1,4 +1,5 @@
 import type { ExtractedText, ImageFile, TranslatedText, TranslationStatus } from '~/types'
+import { useLocalStorage } from '@vueuse/core'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 
@@ -7,7 +8,7 @@ export const useTranslatorStore = defineStore('translator', () => {
   const extractedTexts = ref<ExtractedText[]>([])
   const translatedTexts = ref<TranslatedText[]>([])
   const status = ref<TranslationStatus>('idle')
-  const targetLanguage = ref<string>('en')
+  const targetLanguage = useLocalStorage('manga-translator-lang', 'en')
   const error = ref<string | null>(null)
   const hoveredTextId = ref<string | null>(null)
 
@@ -78,7 +79,7 @@ export const useTranslatorStore = defineStore('translator', () => {
         body: formData,
       })
 
-      extractedTexts.value = response.texts
+      extractedTexts.value = sortTextsByReadingOrder(response.texts)
       status.value = 'done'
     }
     catch (err) {
@@ -86,6 +87,15 @@ export const useTranslatorStore = defineStore('translator', () => {
       error.value = message
       status.value = 'error'
     }
+  }
+
+  function reorderExtractedTexts(fromIndex: number, toIndex: number): void {
+    const list = [...extractedTexts.value]
+    const moved = list.splice(fromIndex, 1)[0]
+    if (!moved)
+      return
+    list.splice(toIndex, 0, moved)
+    extractedTexts.value = list
   }
 
   async function translateTexts(
@@ -140,9 +150,47 @@ export const useTranslatorStore = defineStore('translator', () => {
     clearImage,
     setTargetLanguage,
     extractTexts,
+    reorderExtractedTexts,
     translateTexts,
   }
 })
+
+function sortTextsByReadingOrder(texts: ExtractedText[]): ExtractedText[] {
+  if (texts.length === 0)
+    return texts
+
+  // Detect predominant language — Japanese reads right-to-left
+  const langs = texts.map(t => t.language).filter(Boolean)
+  const isRtl = langs.length > 0
+    && langs.filter(l => l === 'ja').length / langs.length > 0.5
+
+  // Group into rows using average block height as threshold
+  const avgHeight = texts.reduce((sum, t) => sum + t.boundingBox.height, 0) / texts.length
+  const rowThreshold = avgHeight * 0.6
+
+  const rows: ExtractedText[][] = []
+
+  for (const text of [...texts].sort((a, b) => a.boundingBox.y - b.boundingBox.y)) {
+    const row = rows.find(r =>
+      Math.abs(r[0]!.boundingBox.y - text.boundingBox.y) < rowThreshold,
+    )
+    if (row) {
+      row.push(text)
+    }
+    else {
+      rows.push([text])
+    }
+  }
+
+  // Sort within each row by x — descending for RTL (Japanese), ascending otherwise
+  return rows.flatMap(row =>
+    row.sort((a, b) =>
+      isRtl
+        ? b.boundingBox.x - a.boundingBox.x
+        : a.boundingBox.x - b.boundingBox.x,
+    ),
+  )
+}
 
 function getImageDimensions(url: string): Promise<{ width: number, height: number }> {
   return new Promise((resolve, reject) => {
