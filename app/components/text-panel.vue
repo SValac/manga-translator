@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { SupportedLanguage } from '~/types'
-import { computed } from 'vue'
+import { useAutoAnimate } from '@formkit/auto-animate/vue'
+import { computed, ref } from 'vue'
 import { useTranslator } from '~/composables/use-translator'
 import { useTranslatorStore } from '~/stores/translator'
 
@@ -22,6 +23,25 @@ const languages: SupportedLanguage[] = [
 const translationMap = computed(() =>
   Object.fromEntries(store.translatedTexts.map(t => [t.sourceTextId, t])),
 )
+
+const [listRef] = useAutoAnimate()
+const dragFromIndex = ref<number | null>(null)
+
+function onDragStart(index: number) {
+  dragFromIndex.value = index
+}
+
+function onDragOver(e: DragEvent, index: number) {
+  e.preventDefault()
+  if (dragFromIndex.value === null || dragFromIndex.value === index)
+    return
+  store.reorderExtractedTexts(dragFromIndex.value, index)
+  dragFromIndex.value = index
+}
+
+function onDragEnd() {
+  dragFromIndex.value = null
+}
 
 async function handleExtract() {
   await store.extractTexts()
@@ -87,7 +107,7 @@ async function handleTranslate() {
     <USeparator />
 
     <!-- Text list -->
-    <div class="flex flex-1 flex-col gap-2 overflow-y-auto">
+    <div ref="listRef" class="flex flex-1 flex-col gap-2 overflow-y-auto">
       <div class="flex items-center justify-between">
         <span class="text-sm font-medium text-default">Extracted texts</span>
         <UBadge
@@ -121,14 +141,22 @@ async function handleTranslate() {
         </p>
       </div>
 
-      <!-- Text blocks -->
-      <TextBlockCard
-        v-for="text in store.extractedTexts"
+      <!-- Text blocks (draggable) -->
+      <div
+        v-for="(text, index) in store.extractedTexts"
         v-else
         :key="text.id"
-        :text="text"
-        :translation="translationMap[text.id]"
-      />
+        draggable="true"
+        class="cursor-grab active:cursor-grabbing"
+        @dragstart="onDragStart(index)"
+        @dragover="onDragOver($event, index)"
+        @dragend="onDragEnd"
+      >
+        <TextBlockCard
+          :text="text"
+          :translation="translationMap[text.id]"
+        />
+      </div>
     </div>
 
     <!-- Translate button -->
