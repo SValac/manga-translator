@@ -24,7 +24,7 @@ const items = [
 ]
 
 async function handleCopy() {
-  await copyToClipboard(store.translatedTexts)
+  await copyToClipboard(store.extractedTexts, store.translatedTexts)
   toast.add({
     title: 'Copied!',
     description: `${store.translatedTexts.length} translations copied to clipboard`,
@@ -35,7 +35,7 @@ async function handleCopy() {
 
 function handleDownload() {
   const name = store.image?.name.replace(FILENAME_REGEX, '') ?? 'translation'
-  downloadTxt(store.translatedTexts, `${name}-translation.txt`)
+  downloadTxt(store.extractedTexts, store.translatedTexts, `${name}-translation.txt`)
 }
 </script>
 
